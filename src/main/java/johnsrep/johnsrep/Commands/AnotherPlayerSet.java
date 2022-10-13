@@ -1,5 +1,7 @@
 package johnsrep.johnsrep.Commands;
 
+import johnsrep.johnsrep.config.Configuration;
+import johnsrep.johnsrep.config.MessagesConfiguration;
 import johnsrep.johnsrep.database.MySQL;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -12,8 +14,10 @@ import java.sql.SQLException;
 
 public class AnotherPlayerSet implements CommandExecutor {
     private MySQL mysql;
+    private Configuration<MessagesConfiguration> messages;
 
-    public AnotherPlayerSet(MySQL mysql) {
+    public AnotherPlayerSet(MySQL mysql, Configuration<MessagesConfiguration> messages) {
+        this.messages = messages;
         this.mysql = mysql;
     }
 

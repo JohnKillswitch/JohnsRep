@@ -1,6 +1,8 @@
 package johnsrep.johnsrep.database;
 
 import johnsrep.johnsrep.Commands.Reputation;
+import johnsrep.johnsrep.config.Configuration;
+import johnsrep.johnsrep.config.MainConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.ConsoleCommandSender;
@@ -10,12 +12,16 @@ import java.sql.*;
 
 public class MySQL {
 
-    public static String host = "162.55.21.209";
-    public static String port = "3306";
-    public static String database = "s2_john";
-    public static String username = "u2_wRZ5Gyecdv";
-    public static String password = "vQf+Xx=onZJP^E5M+9EmE4v^";
-    public static Connection con;
+    public MySQL(Configuration<MainConfiguration> conf) {
+        config = conf;
+
+    }
+
+    Configuration<MainConfiguration> config;
+
+
+
+    private Connection con;
 
     static ConsoleCommandSender console = Bukkit.getConsoleSender();
 
@@ -23,7 +29,12 @@ public class MySQL {
     public void connect() {
         if (!isConnected()) {
             try {
-                con = DriverManager.getConnection("jdbc:mysql://" + host + ":" + port + "/" + database, username, password);
+                con = DriverManager.getConnection("jdbc:mysql://" +
+                        config.data().database().ipDB() + ":" +
+                        config.data().database().portDB() + "/" +
+                        config.data().database().nameDB(),
+                        config.data().database().usernameDB(),
+                        config.data().database().passwordDB());
                 console.sendMessage("connect");
             } catch (SQLException e) {
                 e.printStackTrace();

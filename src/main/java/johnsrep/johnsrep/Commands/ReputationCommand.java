@@ -1,5 +1,7 @@
 package johnsrep.johnsrep.Commands;
 
+import johnsrep.johnsrep.config.Configuration;
+import johnsrep.johnsrep.config.MessagesConfiguration;
 import johnsrep.johnsrep.database.MySQL;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -10,14 +12,16 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class ReputationCommand implements CommandExecutor {
-    private MySQL mysql = new MySQL();
+    private MySQL mysql;
+    private Configuration<MessagesConfiguration> messages;
 
-    public ReputationCommand(MySQL mysql) {
+    public ReputationCommand(MySQL mysql, Configuration<MessagesConfiguration> messages) {
+        this.messages = messages;
         this.mysql = mysql;
     }
 
-    private final AnotherPlayerSet anotherPlayerSet = new AnotherPlayerSet(this.mysql);
-    private final CheckReputation checkReputation = new CheckReputation(this.mysql);
+    private final AnotherPlayerSet anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages);
+    private final CheckReputation checkReputation = new CheckReputation(this.mysql, this.messages);
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
