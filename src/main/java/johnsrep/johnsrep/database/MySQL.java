@@ -1,31 +1,34 @@
 package johnsrep.johnsrep.database;
 
 import johnsrep.johnsrep.Commands.Reputation;
+import johnsrep.johnsrep.JohnsRep;
 import johnsrep.johnsrep.config.Configuration;
 import johnsrep.johnsrep.config.MainConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Server;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.*;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MySQL {
 
-    public MySQL(Configuration<MainConfiguration> conf) {
-        config = conf;
-
-    }
-
     Configuration<MainConfiguration> config;
-
-
+    private final JohnsRep plugin;
 
     private Connection con;
 
     static ConsoleCommandSender console = Bukkit.getConsoleSender();
 
-    // connect
+    public MySQL(Configuration<MainConfiguration> conf, JohnsRep plugin) {
+        config = conf;
+        this.plugin = plugin;
+
+    }
+
     public void connect() {
         if (!isConnected()) {
             try {
@@ -42,7 +45,6 @@ public class MySQL {
         }
     }
 
-    // disconnect
     public void disconnect() {
         if (isConnected()) {
             try {
@@ -54,12 +56,10 @@ public class MySQL {
         }
     }
 
-    // isConnected
     public boolean isConnected() {
         return (con != null);
     }
 
-    // getConnection
     public Connection getConnection() {
         return con;
     }
@@ -71,8 +71,14 @@ public class MySQL {
                 "Comment VARCHAR(100)," +
                 "UNIQUE(`UUIDto`, `UUIDfrom`))");
         ps.executeUpdate();
+
+        PreparedStatement ps1 = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS CachedPlayers (" +
+                "UUID VARCHAR(100)," +
+                "Value INTEGER," +
+                "UNIQUE(`UUID`))");
+        ps1.executeUpdate();
     }
-    //InsertData
+
     public void insertInTable(OfflinePlayer playerTo, OfflinePlayer playerFrom, int repValue, String repComment) throws SQLException {
         PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " +
                 "Data (`UUIDto`, `UUIDfrom`, `Value`, `Comment`) " +
@@ -83,35 +89,46 @@ public class MySQL {
         ps.setString(4, repComment);
         ps.executeUpdate();
     }
-    //GetReputation
-    public int getFromTable(Player playerTo) throws SQLException {
-        PreparedStatement ps = getConnection().prepareStatement("SELECT Value FROM Data WHERE UUIDto = ?");
-        ps.setString(1, playerTo.getUniqueId().toString());
-        ResultSet rs = ps.executeQuery();
-        int sum = 0;
-        while (rs.next()) {
-            int repValue = rs.getInt("Value");
-            sum += repValue;
-        }
-        return sum;
+
+
+
+
+    public Reputation getAllFromTableSync(OfflinePlayer playerTo) throws SQLException {
+            Reputation reputation = new Reputation();
+            PreparedStatement ps = null;
+            try {
+                ps = getConnection().prepareStatement("SELECT Value, Comment, UUIDfrom FROM Data WHERE UUIDto = ?");
+
+                ps.setString(1, playerTo.getUniqueId().toString());
+                ResultSet rs = ps.executeQuery();
+                reputation.player = playerTo;
+                while (rs.next()) {
+                    reputation.fromPlayer.add(Bukkit.getOfflinePlayer(UUID.fromString(rs.getString("UUIDfrom"))));
+                    reputation.values.add(rs.getInt("Value"));
+                    reputation.comments.add(rs.getString("Comment"));
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return reputation;
 
     }
-    //GetReputation with comments
 
-    public Reputation getAllFromTable(OfflinePlayer playerTo) throws SQLException {
-        PreparedStatement ps = getConnection().prepareStatement("SELECT Value, Comment, UUIDfrom FROM Data WHERE UUIDto = ?");
-        ps.setString(1, playerTo.getUniqueId().toString());
-        ResultSet rs = ps.executeQuery();
-        Reputation reputation = new Reputation();
-        reputation.player = playerTo;
-        while (rs.next()) {
-            reputation.fromPlayer.add(Bukkit.getOfflinePlayerIfCached(rs.getString("UUIDfrom")));
-            reputation.values.add(rs.getInt("Value"));
-            reputation.comments.add( rs.getString("Comment"));
-        }
+    public void getAllFromTable(OfflinePlayer playerTo, MySQLCallback callback) throws SQLException {
+        Server server = plugin.getServer();
+        server.getScheduler().runTaskAsynchronously(plugin, () -> {
+            try {
+                Reputation reputation = getAllFromTableSync(playerTo);
+                callback.returnData(reputation);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
 
-        return reputation;
+    }
 
+    public interface MySQLCallback {
+        void returnData(Reputation reputation) throws SQLException;
     }
 
 }

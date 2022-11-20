@@ -2,8 +2,10 @@ name: JohnsRep
 version: '${project.version}'
 main: johnsrep.johnsrep.JohnsRep
 api-version: 1.16
+depend: [PlaceholderAPI]
 commands:
   rep:
     description: set rep for player
     usage: /<command>
     permission: johnsrep.command.rep
+

@@ -3,40 +3,54 @@ package johnsrep.johnsrep.Commands;
 import johnsrep.johnsrep.config.Configuration;
 import johnsrep.johnsrep.config.MessagesConfiguration;
 import johnsrep.johnsrep.database.MySQL;
+import johnsrep.johnsrep.database.ReputationCache;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 
-public class AnotherPlayerSet implements CommandExecutor {
+public class AnotherPlayerSet {
     private MySQL mysql;
     private Configuration<MessagesConfiguration> messages;
+    private final MiniMessage miniMessage;
+    private final ReputationCache reputationCache;
 
-    public AnotherPlayerSet(MySQL mysql, Configuration<MessagesConfiguration> messages) {
+    public AnotherPlayerSet(MySQL mysql, Configuration<MessagesConfiguration> messages, MiniMessage miniMessage, ReputationCache reputationCache) {
         this.messages = messages;
         this.mysql = mysql;
+        this.miniMessage = miniMessage;
+        this.reputationCache = reputationCache;
     }
 
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    MiniMessage mm = MiniMessage.miniMessage();
+
+    public boolean setReputation(CommandSender sender, Command command, String[] args) throws SQLException {
 
             // /rep [nickname] [+/-] [коммент]
-        OfflinePlayer repPlayer = Bukkit.getOfflinePlayerIfCached(sender.getName());
+
+
+        OfflinePlayer repPlayer = Bukkit.getOfflinePlayerIfCached(args[0]);
         if(repPlayer == null) {
+            sender.sendMessage(
+                    miniMessage.deserialize(
+                            messages.data().messages().playerNotFound(),
+                            Placeholder.parsed("name", args[0])));
             return false;
         }
-//        if (repPlayer.equals(sender)) {
-//            sender.sendMessage("Нельзя выдать себе");
-//            return false;
-//        }
+        if (repPlayer.equals(sender)) {
+            sender.sendMessage(miniMessage.deserialize(messages.data().messages().reputationSelf()));
+            return false;
+        }
         int value = 0;
         if(!args[1].equals("+") && !args[1].equals("-")) { // Проверка на знак + или -
-            sender.sendMessage("Команда введена неправильно");
-            sender.sendMessage("Правильное использование: /rep [Ник] [+/-] [Комментарий]");
+            sender.sendMessage(
+                    messages.data().messages().commandUsedWrong() + "\n" +
+                    messages.data().messages().commandRightUsing());
             return false;
         }
         else {
@@ -56,6 +70,21 @@ public class AnotherPlayerSet implements CommandExecutor {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        sender.sendMessage(
+                mm.deserialize(
+                        messages.data().messages().commandSuccessfullyReputation(),
+                        Placeholder.parsed("prefix", messages.data().messages().pluginPrefix()),
+                        Placeholder.parsed("name", repPlayer.getName())));
+
+        if (repPlayer.isOnline())
+            repPlayer.getPlayer().sendMessage(
+                    mm.deserialize(
+                            messages.data().messages().playerReceiveReputation(),
+                            Placeholder.parsed("prefix", messages.data().messages().pluginPrefix()),
+                            Placeholder.parsed("name", sender.getName())));
+
+        reputationCache.setCache(repPlayer.getUniqueId());
+
         return true;
     }
 

@@ -2,7 +2,7 @@ package johnsrep.johnsrep.config;
 
 import space.arim.dazzleconf.annote.*;
 
-@ConfHeader({""})
+@ConfHeader({"Main configuration file."})
 public interface MainConfiguration {
 
     interface Database {
