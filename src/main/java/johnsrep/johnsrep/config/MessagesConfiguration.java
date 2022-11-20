@@ -19,7 +19,7 @@ public interface MessagesConfiguration {
         @ConfKey("minus-symbol")
         String minusSymbol();
 
-        @ConfDefault.DefaultString("<gray><name> <#ff5050>[ <value> <gray><comment> <#ff5050>]")
+        @ConfDefault.DefaultString("<gray><name> <white>[<value><white>] <white>[<gray><comment> <white>]")
         @ConfKey("reputation-format")
         String reputationFormat();
 
@@ -62,6 +62,10 @@ public interface MessagesConfiguration {
         @ConfDefault.DefaultString("<prefix> <red>player <name> is never playing on server before")
         @ConfKey("player-not-found")
         String playerNotFound();
+
+        @ConfDefault.DefaultString("<gray>--- <white>reputation of <name>: <gray>---")
+        @ConfKey("reputation-of-player")
+        String reputationOfPlayer();
 
     }
     @ConfKey("Messages")

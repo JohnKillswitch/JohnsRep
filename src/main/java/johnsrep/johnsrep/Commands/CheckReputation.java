@@ -41,10 +41,14 @@ public class CheckReputation {
         try {
             mysql.getAllFromTable(player, reputation -> {
                 int sum = 0;
+                sender.sendMessage(
+                        miniMessage.deserialize(
+                                messages.data().messages().reputationOfPlayer(),
+                                Placeholder.parsed("name",player.getName())));
+                sender.sendMessage("");
                 for (int i = 0; i<=reputation.values.size()-1; i++) {
 
                     sum += reputation.values.get(i);
-
                     String value = reputation.values.get(i) == 1 ?
                             messages.data().messages().plusSymbol() :
                             messages.data().messages().minusSymbol();
