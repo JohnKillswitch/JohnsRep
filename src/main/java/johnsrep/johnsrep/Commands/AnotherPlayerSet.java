@@ -48,9 +48,9 @@ public class AnotherPlayerSet {
         }
         int value = 0;
         if(!args[1].equals("+") && !args[1].equals("-")) { // Проверка на знак + или -
-            sender.sendMessage(
+            sender.sendMessage(miniMessage.deserialize(
                     messages.data().messages().commandUsedWrong() + "\n" +
-                    messages.data().messages().commandRightUsing());
+                            messages.data().messages().commandRightUsing()));
             return false;
         }
         else {

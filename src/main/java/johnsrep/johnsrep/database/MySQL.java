@@ -38,7 +38,7 @@ public class MySQL {
                         config.data().database().nameDB(),
                         config.data().database().usernameDB(),
                         config.data().database().passwordDB());
-                console.sendMessage("connect");
+                console.sendMessage("DecaliumRep: connected to database");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -49,7 +49,7 @@ public class MySQL {
         if (isConnected()) {
             try {
                 con.close();
-                console.sendMessage("disconnect");
+                console.sendMessage("DecaliumRep: disconnected from database");
             } catch (SQLException e) {
                 e.printStackTrace();
             }

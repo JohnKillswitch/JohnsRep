@@ -2,7 +2,21 @@ package johnsrep.johnsrep.config;
 
 import space.arim.dazzleconf.annote.*;
 
-@ConfHeader({""})
+@ConfHeader({
+        "------------------------------------------------------------------------------------- #",
+        "You can use MiniMessage format for ALL messages in this plugin                        #",
+        "RGB colors:           <#00ff00>R G B!                                                 #",
+        "Decorations:          <underlined>, <bold>, <italic>, <strikethrough>, <obfuscated>   #",
+        "Reset formatting tag: <reset>                                                         #",
+        "Clickable messages:   <click:run_command:/say hello>Click</click> to say hello        #",
+        "Hoverable messages:   <hover:show_text:'<red>test'>TEST                               #",
+        "Rainbow messages:     <yellow>Woo: <rainbow>|||||</rainbow>!                          #",
+        "Gradient messages:    <yellow>Woo: <gradient>||||</gradient>!                         #",
+        "Multiline messages:   its first line<newline> its second line!                        #",
+        "                                                                                      #",
+        "You can found more info about MiniMessage format in                                   #",
+        "https://docs.adventure.kyori.net/minimessage/format.html#standard-tags                #",
+        "------------------------------------------------------------------------------------- #"})
 public interface MessagesConfiguration {
 
     interface Messages {
