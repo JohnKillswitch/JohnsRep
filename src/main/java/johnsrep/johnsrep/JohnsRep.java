@@ -10,6 +10,7 @@ import johnsrep.johnsrep.database.ReputationCache;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -23,6 +24,9 @@ public final class JohnsRep extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+
+        int pluginId = 16918;
+        Metrics metrics = new Metrics(this, pluginId);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             Bukkit.getPluginManager().registerEvents(this, this);
@@ -63,7 +67,7 @@ public final class JohnsRep extends JavaPlugin implements Listener {
 
         ReputationCache reputationCache = new ReputationCache(mysql);
         MiniMessage miniMessage = MiniMessage.builder().tags(resolver).build();
-        this.getCommand("rep").setExecutor(new ReputationCommand(mysql, messages, miniMessage, reputationCache));
+        this.getCommand("rep").setExecutor(new ReputationCommand(mysql, messages, miniMessage, reputationCache, conf));
 
         getServer().getPluginManager().registerEvents(new PlayerEnteringServer(reputationCache), this);
 

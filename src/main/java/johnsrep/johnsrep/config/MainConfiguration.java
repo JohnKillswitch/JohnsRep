@@ -27,10 +27,21 @@ public interface MainConfiguration {
         String passwordDB();
     }
 
+
     @ConfKey("Database")
     @SubSection
     @ConfComments({"Write your database information here."})
     Database database();
+
+    interface OtherSettings {
+        @ConfComments({"You need to write time in hours"})
+        @ConfDefault.DefaultInteger(2)
+        @ConfKey("needTimePlayed")
+        int needTimePlayed();
+    }
+    @ConfKey("OtherSettings")
+    @SubSection
+    OtherSettings otherSettings();
 
 
 

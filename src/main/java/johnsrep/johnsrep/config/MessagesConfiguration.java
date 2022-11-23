@@ -81,6 +81,10 @@ public interface MessagesConfiguration {
         @ConfKey("reputation-of-player")
         String reputationOfPlayer();
 
+        @ConfDefault.DefaultString("<prefix> <red>You have not enough time played on server to use this command")
+        @ConfKey("need-more-played-time")
+        String needMorePlayedTime();
+
     }
     @ConfKey("Messages")
     @SubSection

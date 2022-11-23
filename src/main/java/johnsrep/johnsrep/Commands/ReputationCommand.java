@@ -1,6 +1,7 @@
 package johnsrep.johnsrep.Commands;
 
 import johnsrep.johnsrep.config.Configuration;
+import johnsrep.johnsrep.config.MainConfiguration;
 import johnsrep.johnsrep.config.MessagesConfiguration;
 import johnsrep.johnsrep.database.MySQL;
 import johnsrep.johnsrep.database.ReputationCache;
@@ -18,22 +19,31 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public class ReputationCommand implements CommandExecutor {
+
     private MySQL mysql;
     private Configuration<MessagesConfiguration> messages;
-
     private final AnotherPlayerSet anotherPlayerSet;
     private final CheckReputation checkReputation;
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
+    private final Configuration<MainConfiguration> conf;
 
-    public ReputationCommand(MySQL mysql, Configuration<MessagesConfiguration> messages, MiniMessage miniMessage, ReputationCache reputationCache) {
+    public ReputationCommand(
+            MySQL mysql,
+            Configuration<MessagesConfiguration> messages,
+            MiniMessage miniMessage,
+            ReputationCache reputationCache,
+            Configuration<MainConfiguration> conf) {
+
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
+        this.conf = conf;
 
 
-        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.miniMessage, reputationCache);
+
+        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.miniMessage, reputationCache, conf);
         checkReputation = new CheckReputation(this.mysql, this.messages, this.miniMessage, reputationCache);
     }
 

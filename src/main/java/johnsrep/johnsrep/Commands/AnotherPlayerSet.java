@@ -1,6 +1,8 @@
 package johnsrep.johnsrep.Commands;
 
+import johnsrep.johnsrep.JohnsRep;
 import johnsrep.johnsrep.config.Configuration;
+import johnsrep.johnsrep.config.MainConfiguration;
 import johnsrep.johnsrep.config.MessagesConfiguration;
 import johnsrep.johnsrep.database.MySQL;
 import johnsrep.johnsrep.database.ReputationCache;
@@ -8,6 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -19,12 +22,20 @@ public class AnotherPlayerSet {
     private Configuration<MessagesConfiguration> messages;
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
+    private final Configuration<MainConfiguration> conf;
 
-    public AnotherPlayerSet(MySQL mysql, Configuration<MessagesConfiguration> messages, MiniMessage miniMessage, ReputationCache reputationCache) {
+    public AnotherPlayerSet(
+            MySQL mysql,
+            Configuration<MessagesConfiguration> messages,
+            MiniMessage miniMessage,
+            ReputationCache reputationCache,
+            Configuration<MainConfiguration> conf) {
+
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
+        this.conf = conf;
     }
 
     MiniMessage mm = MiniMessage.miniMessage();
@@ -32,7 +43,11 @@ public class AnotherPlayerSet {
     public boolean setReputation(CommandSender sender, Command command, String[] args) throws SQLException {
 
             // /rep [nickname] [+/-] [коммент]
-
+        Player player = (Player) sender;
+        if (player.getStatistic(Statistic.PLAY_ONE_MINUTE) < conf.data().otherSettings().needTimePlayed()*20*3600) {
+            sender.sendMessage(miniMessage.deserialize(messages.data().messages().needMorePlayedTime()));
+            return false;
+        }
 
         OfflinePlayer repPlayer = Bukkit.getOfflinePlayerIfCached(args[0]);
         if(repPlayer == null) {
