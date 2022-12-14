@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.config;
+package johnsrep.johnsrep.Configs;
 
 import space.arim.dazzleconf.annote.*;
 

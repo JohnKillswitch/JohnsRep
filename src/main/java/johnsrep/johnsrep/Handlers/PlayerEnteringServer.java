@@ -1,6 +1,6 @@
 package johnsrep.johnsrep.Handlers;
 
-import johnsrep.johnsrep.database.ReputationCache;
+import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
