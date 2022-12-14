@@ -2,20 +2,14 @@ package johnsrep.johnsrep;
 
 import johnsrep.johnsrep.Commands.CheckReputation;
 import johnsrep.johnsrep.Commands.Reputation;
-import johnsrep.johnsrep.config.Configuration;
-import johnsrep.johnsrep.config.MessagesConfiguration;
-import johnsrep.johnsrep.database.MySQL;
-import johnsrep.johnsrep.database.ReputationCache;
+import johnsrep.johnsrep.Configs.Configuration;
+import johnsrep.johnsrep.Configs.MessagesConfiguration;
+import johnsrep.johnsrep.DatabaseRelated.MySQL;
+import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-
-import java.sql.SQLException;
-import java.util.UUID;
 
 public class Placeholders extends PlaceholderExpansion {
 

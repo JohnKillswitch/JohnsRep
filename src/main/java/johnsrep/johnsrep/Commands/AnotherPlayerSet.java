@@ -1,11 +1,10 @@
 package johnsrep.johnsrep.Commands;
 
-import johnsrep.johnsrep.JohnsRep;
-import johnsrep.johnsrep.config.Configuration;
-import johnsrep.johnsrep.config.MainConfiguration;
-import johnsrep.johnsrep.config.MessagesConfiguration;
-import johnsrep.johnsrep.database.MySQL;
-import johnsrep.johnsrep.database.ReputationCache;
+import johnsrep.johnsrep.Configs.Configuration;
+import johnsrep.johnsrep.Configs.MainConfiguration;
+import johnsrep.johnsrep.Configs.MessagesConfiguration;
+import johnsrep.johnsrep.DatabaseRelated.MySQL;
+import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;

@@ -1,18 +1,17 @@
-package johnsrep.johnsrep.database;
+package johnsrep.johnsrep.DatabaseRelated;
 
 import johnsrep.johnsrep.Commands.Reputation;
 import johnsrep.johnsrep.JohnsRep;
-import johnsrep.johnsrep.config.Configuration;
-import johnsrep.johnsrep.config.MainConfiguration;
+import johnsrep.johnsrep.Configs.Configuration;
+import johnsrep.johnsrep.Configs.MainConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 
 import java.sql.*;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 public class MySQL {
 
@@ -20,8 +19,6 @@ public class MySQL {
     private final JohnsRep plugin;
 
     private Connection con;
-
-    static ConsoleCommandSender console = Bukkit.getConsoleSender();
 
     public MySQL(Configuration<MainConfiguration> conf, JohnsRep plugin) {
         config = conf;
@@ -38,7 +35,7 @@ public class MySQL {
                         config.data().database().nameDB(),
                         config.data().database().usernameDB(),
                         config.data().database().passwordDB());
-                console.sendMessage("DecaliumRep: connected to database");
+                plugin.getLogger().log(Level.FINE,"DecaliumRep: connected to database");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -49,7 +46,7 @@ public class MySQL {
         if (isConnected()) {
             try {
                 con.close();
-                console.sendMessage("DecaliumRep: disconnected from database");
+                plugin.getLogger().log(Level.FINE,"DecaliumRep: disconnected from database");
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -89,13 +86,30 @@ public class MySQL {
         ps.setString(4, repComment);
         ps.executeUpdate();
     }
+    public void getSumFromTable(OfflinePlayer player, MySQLCallback2 callback) {
+        Server server = plugin.getServer();
+        server.getScheduler().runTaskAsynchronously(plugin, () -> {
+            PreparedStatement ps = null;
+            try {
+                ps = getConnection().prepareStatement("SELECT SUM(Value) FROM Data WHERE UUIDto = ?");
+                ps.setString(1, player.getUniqueId().toString());
+                ResultSet rs = ps.executeQuery();
+                rs.next();
+                int sum = rs.getInt(1);
+                callback.returnData(sum);
 
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        });
+    }
 
 
 
     public Reputation getAllFromTableSync(OfflinePlayer playerTo) throws SQLException {
             Reputation reputation = new Reputation();
-            PreparedStatement ps = null;
+            PreparedStatement ps;
             try {
                 ps = getConnection().prepareStatement("SELECT Value, Comment, UUIDfrom FROM Data WHERE UUIDto = ?");
 
@@ -129,6 +143,9 @@ public class MySQL {
 
     public interface MySQLCallback {
         void returnData(Reputation reputation) throws SQLException;
+    }
+    public interface MySQLCallback2 {
+        void returnData(int sum) throws SQLException;
     }
 
 }

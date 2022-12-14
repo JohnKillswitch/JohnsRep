@@ -1,10 +1,9 @@
 package johnsrep.johnsrep.Commands;
 
-import johnsrep.johnsrep.config.Configuration;
-import johnsrep.johnsrep.config.MessagesConfiguration;
-import johnsrep.johnsrep.database.MySQL;
-import johnsrep.johnsrep.database.ReputationCache;
-import net.kyori.adventure.text.Component;
+import johnsrep.johnsrep.Configs.Configuration;
+import johnsrep.johnsrep.Configs.MessagesConfiguration;
+import johnsrep.johnsrep.DatabaseRelated.MySQL;
+import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -70,10 +69,8 @@ public class CheckReputation {
                 else
                     sender.sendMessage(miniMessage.deserialize(messages.data().messages().reputationTotalFormatMinus(),
                             Placeholder.parsed("value", String.valueOf(sum))));
-
                 reputationCache.setCache(player.getUniqueId());
             });
-
         } catch (SQLException e) {
             e.printStackTrace();
         }

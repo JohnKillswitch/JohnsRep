@@ -1,14 +1,11 @@
 package johnsrep.johnsrep.Commands;
 
-import johnsrep.johnsrep.config.Configuration;
-import johnsrep.johnsrep.config.MainConfiguration;
-import johnsrep.johnsrep.config.MessagesConfiguration;
-import johnsrep.johnsrep.database.MySQL;
-import johnsrep.johnsrep.database.ReputationCache;
+import johnsrep.johnsrep.Configs.Configuration;
+import johnsrep.johnsrep.Configs.MainConfiguration;
+import johnsrep.johnsrep.Configs.MessagesConfiguration;
+import johnsrep.johnsrep.DatabaseRelated.MySQL;
+import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +13,6 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class ReputationCommand implements CommandExecutor {
 
