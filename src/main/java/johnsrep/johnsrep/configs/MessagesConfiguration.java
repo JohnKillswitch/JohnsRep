@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.Configs;
+package johnsrep.johnsrep.configs;
 
 import space.arim.dazzleconf.annote.*;
 
@@ -16,12 +16,14 @@ import space.arim.dazzleconf.annote.*;
         "                                                                                      #",
         "You can found more info about MiniMessage format in                                   #",
         "https://docs.adventure.kyori.net/minimessage/format.html#standard-tags                #",
-        "------------------------------------------------------------------------------------- #"})
+        "------------------------------------------------------------------------------------- #"
+})
+
 public interface MessagesConfiguration {
 
     interface Messages {
 
-        @ConfDefault.DefaultString("<gradient:#42C4FB:#44DDFC>Decalium</gradient><white>Rep <gray>➟")
+        @ConfDefault.DefaultString("<gradient:#42C4FB:#44DDFC>Johns</gradient><white>Rep <gray>➟")
         @ConfKey("prefix")
         String pluginPrefix();
 

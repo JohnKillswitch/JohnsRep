@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.Commands;
+package johnsrep.johnsrep.commands;
 
 import org.bukkit.OfflinePlayer;
 

@@ -1,9 +1,10 @@
-package johnsrep.johnsrep.Commands;
+package johnsrep.johnsrep.commands;
 
-import johnsrep.johnsrep.Configs.Configuration;
-import johnsrep.johnsrep.Configs.MessagesConfiguration;
-import johnsrep.johnsrep.DatabaseRelated.MySQL;
-import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
+import johnsrep.johnsrep.configs.CommandsConfiguration;
+import johnsrep.johnsrep.configs.Configuration;
+import johnsrep.johnsrep.configs.MessagesConfiguration;
+import johnsrep.johnsrep.databaseRelated.MySQL;
+import johnsrep.johnsrep.databaseRelated.ReputationCache;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -16,10 +17,17 @@ public class CheckReputation {
     private final Configuration<MessagesConfiguration> messages;
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
+    Configuration<CommandsConfiguration> commands;
 
-    public CheckReputation(MySQL mysql, Configuration<MessagesConfiguration> messages, MiniMessage miniMessage, ReputationCache reputationCache) {
+    public CheckReputation(
+            MySQL mysql,
+            Configuration<MessagesConfiguration> messages,
+            MiniMessage miniMessage,
+            ReputationCache reputationCache,
+            Configuration<CommandsConfiguration> commands) {
 
         this.messages = messages;
+        this.commands = commands;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
@@ -27,7 +35,6 @@ public class CheckReputation {
     MiniMessage mm = MiniMessage.miniMessage();
 
     public void checkReputation(CommandSender sender, String playerName) {
-
         OfflinePlayer player = Bukkit.getOfflinePlayerIfCached(playerName);
         if (player == null) {
             sender.sendMessage(
@@ -43,7 +50,7 @@ public class CheckReputation {
                 sender.sendMessage(
                         miniMessage.deserialize(
                                 messages.data().messages().reputationOfPlayer(),
-                                Placeholder.parsed("name",player.getName())));
+                                Placeholder.parsed("name", player.getName())));
                 sender.sendMessage("");
                 for (int i = 0; i<=reputation.values.size()-1; i++) {
 

@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.Configs;
+package johnsrep.johnsrep.configs;
 
 import space.arim.dazzleconf.annote.*;
 
@@ -6,9 +6,14 @@ import space.arim.dazzleconf.annote.*;
 public interface MainConfiguration {
 
     interface Database {
-        @ConfDefault.DefaultInteger(3306)
+        @ConfComments({"MySQL or H2"})
+        @ConfDefault.DefaultString("SQLite")
+        @ConfKey("type")
+        String dbType();
+
+        @ConfDefault.DefaultString("3306")
         @ConfKey("Database-Port")
-        int portDB();
+        String portDB();
 
         @ConfDefault.DefaultString("localhost")
         @ConfKey("Database-IP")

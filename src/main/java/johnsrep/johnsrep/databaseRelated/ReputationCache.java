@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.DatabaseRelated;
+package johnsrep.johnsrep.databaseRelated;
 
 import org.bukkit.Bukkit;
 import java.sql.SQLException;

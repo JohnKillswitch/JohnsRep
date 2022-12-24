@@ -1,12 +1,16 @@
 package johnsrep.johnsrep;
 
-import johnsrep.johnsrep.Commands.ReputationCommand;
-import johnsrep.johnsrep.Handlers.PlayerEnteringServer;
-import johnsrep.johnsrep.Configs.Configuration;
-import johnsrep.johnsrep.Configs.MainConfiguration;
-import johnsrep.johnsrep.Configs.MessagesConfiguration;
-import johnsrep.johnsrep.DatabaseRelated.MySQL;
-import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
+import com.zaxxer.hikari.HikariDataSource;
+import johnsrep.johnsrep.commands.ReputationCommand;
+import johnsrep.johnsrep.configs.CommandsConfiguration;
+import johnsrep.johnsrep.databaseRelated.HikariDataSourceCreation;
+import johnsrep.johnsrep.handlers.PlayerEnteringServer;
+import johnsrep.johnsrep.configs.Configuration;
+import johnsrep.johnsrep.configs.MainConfiguration;
+import johnsrep.johnsrep.configs.MessagesConfiguration;
+import johnsrep.johnsrep.databaseRelated.MySQL;
+import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.CommandExecutor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -25,15 +29,16 @@ public final class JohnsRep extends JavaPlugin implements Listener {
     @Override
     public void onEnable() {
 
-        int pluginId = 16918;
+        int pluginId = 17673;
         Metrics metrics = new Metrics(this, pluginId);
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             Bukkit.getPluginManager().registerEvents(this, this);
         } else {
-            getLogger().warning("Could not find PlaceholderAPI! This plugin is required.");
+            getLogger().warning("Could not find PlaceholderAPI! This plugin is required to work.");
             Bukkit.getPluginManager().disablePlugin(this);
         }
+
 
         Configuration<MainConfiguration> conf = Configuration.create(
                 this,
@@ -47,16 +52,37 @@ public final class JohnsRep extends JavaPlugin implements Listener {
                 MessagesConfiguration.class,
                 ConfigurationOptions.defaults());
 
+        Configuration<CommandsConfiguration> commands = Configuration.create(
+                this,
+                "commands.yml",
+                CommandsConfiguration.class,
+                ConfigurationOptions.defaults());
+
         conf.reloadConfig();
         messages.reloadConfig();
+        commands.reloadConfig();
 
-        MySQL mysql = new MySQL(conf, this);
-        mysql.connect();
+        CommandExecutor executor = new CommandExecutor(this, commands);
+
+        HikariDataSourceCreation hikariConnection = new HikariDataSourceCreation(this, conf);
+        HikariDataSource hikari = hikariConnection.create();
+
+        MySQL mysql = new MySQL(conf, this, hikari);
         try {
             mysql.createTable();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+//        try {
+//            mysql.connect();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+//        try {
+//            mysql.createTable();
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
 
         TagResolver resolver = TagResolver.resolver(
                 TagResolver.standard(),
@@ -71,7 +97,7 @@ public final class JohnsRep extends JavaPlugin implements Listener {
 
         getServer().getPluginManager().registerEvents(new PlayerEnteringServer(reputationCache), this);
 
-        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache);
+        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache, commands);
         placeholders.register();
     }
 

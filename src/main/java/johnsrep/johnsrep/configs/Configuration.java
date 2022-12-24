@@ -1,4 +1,4 @@
-package johnsrep.johnsrep.Configs;
+package johnsrep.johnsrep.configs;
 
 import com.destroystokyo.paper.util.SneakyThrow;
 import org.bukkit.plugin.Plugin;

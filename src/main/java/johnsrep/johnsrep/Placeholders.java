@@ -1,11 +1,12 @@
 package johnsrep.johnsrep;
 
-import johnsrep.johnsrep.Commands.CheckReputation;
-import johnsrep.johnsrep.Commands.Reputation;
-import johnsrep.johnsrep.Configs.Configuration;
-import johnsrep.johnsrep.Configs.MessagesConfiguration;
-import johnsrep.johnsrep.DatabaseRelated.MySQL;
-import johnsrep.johnsrep.DatabaseRelated.ReputationCache;
+import johnsrep.johnsrep.commands.CheckReputation;
+import johnsrep.johnsrep.commands.Reputation;
+import johnsrep.johnsrep.configs.CommandsConfiguration;
+import johnsrep.johnsrep.configs.Configuration;
+import johnsrep.johnsrep.configs.MessagesConfiguration;
+import johnsrep.johnsrep.databaseRelated.MySQL;
+import johnsrep.johnsrep.databaseRelated.ReputationCache;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.OfflinePlayer;
@@ -15,17 +16,24 @@ public class Placeholders extends PlaceholderExpansion {
 
     private final MySQL mysql;
     private final Configuration<MessagesConfiguration> messages;
+    private final Configuration<CommandsConfiguration> commands;
     private final MiniMessage miniMessage;
     private final CheckReputation checkReputation;
     private final ReputationCache reputationCache;
 
-    public Placeholders(MySQL mysql, Configuration<MessagesConfiguration> messages, MiniMessage miniMessage, ReputationCache reputationCache) {
+    public Placeholders(
+            MySQL mysql,
+            Configuration<MessagesConfiguration> messages,
+            MiniMessage miniMessage,
+            ReputationCache reputationCache,
+            Configuration<CommandsConfiguration> commands) {
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
+        this.commands = commands;
 
-        checkReputation = new CheckReputation(this.mysql, this.messages, this.miniMessage, reputationCache);
+        checkReputation = new CheckReputation(this.mysql, this.messages, this.miniMessage, reputationCache, commands);
     }
 
     @Override

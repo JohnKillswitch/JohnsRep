@@ -1,63 +1,67 @@
-package johnsrep.johnsrep.DatabaseRelated;
+package johnsrep.johnsrep.databaseRelated;
 
-import johnsrep.johnsrep.Commands.Reputation;
+import com.zaxxer.hikari.HikariDataSource;
+import johnsrep.johnsrep.commands.Reputation;
 import johnsrep.johnsrep.JohnsRep;
-import johnsrep.johnsrep.Configs.Configuration;
-import johnsrep.johnsrep.Configs.MainConfiguration;
+import johnsrep.johnsrep.configs.Configuration;
+import johnsrep.johnsrep.configs.MainConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
-import org.bukkit.command.ConsoleCommandSender;
 
 import java.sql.*;
 import java.util.UUID;
-import java.util.logging.Level;
 
 public class MySQL {
 
-    Configuration<MainConfiguration> config;
+    private Configuration<MainConfiguration> config;
     private final JohnsRep plugin;
 
     private Connection con;
+    private HikariDataSource ds;
 
-    public MySQL(Configuration<MainConfiguration> conf, JohnsRep plugin) {
-        config = conf;
+
+    public MySQL(Configuration<MainConfiguration> conf, JohnsRep plugin, HikariDataSource ds) {
+        this.config = conf;
         this.plugin = plugin;
+        this.ds = ds;
 
     }
 
-    public void connect() {
-        if (!isConnected()) {
-            try {
-                con = DriverManager.getConnection("jdbc:mysql://" +
-                        config.data().database().ipDB() + ":" +
-                        config.data().database().portDB() + "/" +
-                        config.data().database().nameDB(),
-                        config.data().database().usernameDB(),
-                        config.data().database().passwordDB());
-                plugin.getLogger().log(Level.FINE,"DecaliumRep: connected to database");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void connect() throws SQLException {
+//        if (!isConnected()) {
+//            ds = new HikariDataSource();
+//            //"jdbc:mysql://localhost:3306/simpsons"
+//            ds.setJdbcUrl("jdbc:mysql://localhost:3306/simpsons");
+//            ds.setJdbcUrl("jdbc:mysql://" +
+//                    config.data().database().ipDB() + ":" +
+//                    config.data().database().portDB() + "/" +
+//                    config.data().database().nameDB());
+//
+//            ds.setUsername(config.data().database().usernameDB());
+//            ds.setPassword(config.data().database().passwordDB());
+//            con = ds.getConnection();
+//            plugin.getLogger().log(Level.FINE,"JohnsRep: connected to database");
+//        }
+//    }
 
-    public void disconnect() {
-        if (isConnected()) {
-            try {
-                con.close();
-                plugin.getLogger().log(Level.FINE,"DecaliumRep: disconnected from database");
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    public void disconnect() {
+//        if (isConnected()) {
+//            try {
+//                con.close();
+//                plugin.getLogger().log(Level.FINE,"JohnsRep: disconnected from database");
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     public boolean isConnected() {
         return (con != null);
     }
 
-    public Connection getConnection() {
+    public Connection getConnection() throws SQLException {
+        con = ds.getConnection();
         return con;
     }
     public void createTable() throws SQLException {
@@ -68,25 +72,41 @@ public class MySQL {
                 "Comment VARCHAR(100)," +
                 "UNIQUE(`UUIDto`, `UUIDfrom`))");
         ps.executeUpdate();
+        con.close();
 
         PreparedStatement ps1 = getConnection().prepareStatement("CREATE TABLE IF NOT EXISTS CachedPlayers (" +
                 "UUID VARCHAR(100)," +
                 "Value INTEGER," +
                 "UNIQUE(`UUID`))");
         ps1.executeUpdate();
+        con.close();
     }
 
     public void insertInTable(OfflinePlayer playerTo, OfflinePlayer playerFrom, int repValue, String repComment) throws SQLException {
-        PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " +
-                "Data (`UUIDto`, `UUIDfrom`, `Value`, `Comment`) " +
-                "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `Value`=VALUES(`Value`), `Comment`=VALUES(`Comment`)");
-        ps.setString(1, playerTo.getUniqueId().toString());
-        ps.setString(2, playerFrom.getUniqueId().toString());
-        ps.setInt(3, repValue);
-        ps.setString(4, repComment);
-        ps.executeUpdate();
+        if (config.data().database().dbType().equalsIgnoreCase("mysql")) {
+            PreparedStatement ps = getConnection().prepareStatement("INSERT INTO " +
+                    "Data (`UUIDto`, `UUIDfrom`, `Value`, `Comment`) " +
+                    "VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE `Value`=VALUES(`Value`), `Comment`=VALUES(`Comment`)");
+            ps.setString(1, playerTo.getUniqueId().toString());
+            ps.setString(2, playerFrom.getUniqueId().toString());
+            ps.setInt(3, repValue);
+            ps.setString(4, repComment);
+            ps.executeUpdate();
+            con.close();
+        }
+        else {
+            PreparedStatement ps = getConnection().prepareStatement("INSERT OR REPLACE INTO " +
+                    "Data (`UUIDto`, `UUIDfrom`, `Value`, `Comment`) " +
+                    "VALUES (?, ?, ?, ?)");
+            ps.setString(1, playerTo.getUniqueId().toString());
+            ps.setString(2, playerFrom.getUniqueId().toString());
+            ps.setInt(3, repValue);
+            ps.setString(4, repComment);
+            ps.executeUpdate();
+            con.close();
+        }
     }
-    public void getSumFromTable(OfflinePlayer player, MySQLCallback2 callback) {
+    public void getSumFromTable(OfflinePlayer player, MySQLCallback2 callback) throws SQLException {
         Server server = plugin.getServer();
         server.getScheduler().runTaskAsynchronously(plugin, () -> {
             PreparedStatement ps = null;
@@ -97,6 +117,7 @@ public class MySQL {
                 rs.next();
                 int sum = rs.getInt(1);
                 callback.returnData(sum);
+                con.close();
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -104,8 +125,6 @@ public class MySQL {
 
         });
     }
-
-
 
     public Reputation getAllFromTableSync(OfflinePlayer playerTo) throws SQLException {
             Reputation reputation = new Reputation();
@@ -121,6 +140,7 @@ public class MySQL {
                     reputation.values.add(rs.getInt("Value"));
                     reputation.comments.add(rs.getString("Comment"));
                 }
+                con.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }
