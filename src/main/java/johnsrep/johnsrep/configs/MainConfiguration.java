@@ -31,8 +31,6 @@ public interface MainConfiguration {
         @ConfKey("Database-Password")
         String passwordDB();
     }
-
-
     @ConfKey("Database")
     @SubSection
     @ConfComments({"Write your database information here."})

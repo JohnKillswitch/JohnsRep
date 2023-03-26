@@ -18,15 +18,6 @@ public class ReputationCache {
         mysql.getSumFromTable(Bukkit.getOfflinePlayer(uuid), sum -> {
             repCache.put(uuid, sum);
         });
-
-//  OLD VERSION (shit btw)
-//        Reputation reputation = mysql.getAllFromTable(Bukkit.getOfflinePlayer(uuid), reputation1 -> {
-//
-//        });
-//        int sum = 0;
-//        for (int i = 0; i<=reputation.values.size()-1; i++) {
-//            sum+=reputation.values.get(i);
-//        }
     }
     public int getCache(UUID uuid) {
         return repCache.get(uuid);

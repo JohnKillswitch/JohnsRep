@@ -10,7 +10,7 @@ import johnsrep.johnsrep.configs.MainConfiguration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
-import johnsrep.johnsrep.utils.CommandExecutor;
+import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
@@ -62,8 +62,6 @@ public final class JohnsRep extends JavaPlugin implements Listener {
         messages.reloadConfig();
         commands.reloadConfig();
 
-        CommandExecutor executor = new CommandExecutor(this, commands);
-
         HikariDataSourceCreation hikariConnection = new HikariDataSourceCreation(this, conf);
         HikariDataSource hikari = hikariConnection.create();
 
@@ -73,16 +71,6 @@ public final class JohnsRep extends JavaPlugin implements Listener {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-//        try {
-//            mysql.connect();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        try {
-//            mysql.createTable();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
 
         TagResolver resolver = TagResolver.resolver(
                 TagResolver.standard(),
@@ -93,11 +81,14 @@ public final class JohnsRep extends JavaPlugin implements Listener {
 
         ReputationCache reputationCache = new ReputationCache(mysql);
         MiniMessage miniMessage = MiniMessage.builder().tags(resolver).build();
-        this.getCommand("rep").setExecutor(new ReputationCommand(mysql, messages, miniMessage, reputationCache, conf));
+
+        ExecuteCommands executor = new ExecuteCommands(this, commands, miniMessage);
+
+        this.getCommand("rep").setExecutor(new ReputationCommand(mysql, messages, miniMessage, reputationCache, conf, executor, commands));
 
         getServer().getPluginManager().registerEvents(new PlayerEnteringServer(reputationCache), this);
 
-        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache, commands);
+        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache, commands, executor);
         placeholders.register();
     }
 

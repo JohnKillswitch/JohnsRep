@@ -7,6 +7,7 @@ import johnsrep.johnsrep.configs.Configuration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ExecuteCommands;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import org.bukkit.OfflinePlayer;
@@ -20,20 +21,29 @@ public class Placeholders extends PlaceholderExpansion {
     private final MiniMessage miniMessage;
     private final CheckReputation checkReputation;
     private final ReputationCache reputationCache;
+    ExecuteCommands executor;
 
     public Placeholders(
             MySQL mysql,
             Configuration<MessagesConfiguration> messages,
             MiniMessage miniMessage,
             ReputationCache reputationCache,
-            Configuration<CommandsConfiguration> commands) {
+            Configuration<CommandsConfiguration> commands,
+            ExecuteCommands executor) {
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
         this.commands = commands;
+        this.executor = executor;
 
-        checkReputation = new CheckReputation(this.mysql, this.messages, this.miniMessage, reputationCache, commands);
+        checkReputation = new CheckReputation(
+                this.mysql,
+                this.messages,
+                this.miniMessage,
+                reputationCache,
+                commands,
+                executor);
     }
 
     @Override

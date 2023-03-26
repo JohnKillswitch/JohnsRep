@@ -5,6 +5,7 @@ import johnsrep.johnsrep.configs.Configuration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -18,19 +19,22 @@ public class CheckReputation {
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
     Configuration<CommandsConfiguration> commands;
+    ExecuteCommands executor;
 
     public CheckReputation(
             MySQL mysql,
             Configuration<MessagesConfiguration> messages,
             MiniMessage miniMessage,
             ReputationCache reputationCache,
-            Configuration<CommandsConfiguration> commands) {
+            Configuration<CommandsConfiguration> commands,
+            ExecuteCommands executor) {
 
         this.messages = messages;
         this.commands = commands;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
+        this.executor = executor;
     }
     MiniMessage mm = MiniMessage.miniMessage();
 
@@ -77,6 +81,7 @@ public class CheckReputation {
                     sender.sendMessage(miniMessage.deserialize(messages.data().messages().reputationTotalFormatMinus(),
                             Placeholder.parsed("value", String.valueOf(sum))));
                 reputationCache.setCache(player.getUniqueId());
+
             });
         } catch (SQLException e) {
             e.printStackTrace();

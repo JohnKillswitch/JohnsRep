@@ -1,10 +1,12 @@
 package johnsrep.johnsrep.commands;
 
+import johnsrep.johnsrep.configs.CommandsConfiguration;
 import johnsrep.johnsrep.configs.Configuration;
 import johnsrep.johnsrep.configs.MainConfiguration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
@@ -15,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class AnotherPlayerSet {
     private MySQL mysql;
@@ -22,19 +25,25 @@ public class AnotherPlayerSet {
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
     private final Configuration<MainConfiguration> conf;
+    private final Configuration<CommandsConfiguration> commands;
+    ExecuteCommands executor;
 
-    public AnotherPlayerSet(
+    public AnotherPlayerSet (
             MySQL mysql,
             Configuration<MessagesConfiguration> messages,
             MiniMessage miniMessage,
             ReputationCache reputationCache,
-            Configuration<MainConfiguration> conf) {
+            Configuration<MainConfiguration> conf,
+            ExecuteCommands executor,
+            Configuration<CommandsConfiguration> commands) {
 
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
         this.conf = conf;
+        this.executor = executor;
+        this.commands = commands;
     }
 
     MiniMessage mm = MiniMessage.miniMessage();
@@ -68,10 +77,24 @@ public class AnotherPlayerSet {
             return false;
         }
         else {
-            if(args[1].equals("+"))
+            if(args[1].equals("+")) {
                 value = 1;
-            if(args[1].equals("-"))
+//                executor.executeCommands(
+//                        (ArrayList<String>) commands.data().commands().plusReputationAdded(),
+//                        player,
+//                        repPlayer
+//                );
+
+            }
+            if(args[1].equals("-")) {
                 value = -1;
+//                executor.executeCommands(
+//                        (ArrayList<String>) commands.data().commands().minusReputationAdded(),
+//                        player,
+//                        repPlayer
+//                );
+
+            }
         }
 
 

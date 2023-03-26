@@ -2,6 +2,9 @@ package johnsrep.johnsrep.configs;
 
 import space.arim.dazzleconf.annote.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @ConfHeader({
         "------------------------------------------------------------------------------------- #",
         "You can use MiniMessage format for ALL messages in this plugin                        #",
@@ -24,17 +27,6 @@ public interface CommandsConfiguration {
     interface Commands {
 
         @ConfComments({
-                "List of command that executes then player check self reputation",
-                "You can use a <name> variable in commands"
-        })
-        @ConfDefault.DefaultStrings({
-                "playsound block.anvil.hit master <name>",
-                "tell <name> test command!"
-        })
-        @ConfKey("self-check-commands")
-        String[] selfCheckCommands();
-
-        @ConfComments({
                 "List of command that executes then player add a - reputation",
                 "You can use several variables here:",
                 "<senderName> for command sender,",
@@ -45,7 +37,7 @@ public interface CommandsConfiguration {
                 "say <senderName> give a - reputation to <recipientName>"
         })
         @ConfKey("minus-reputation-added")
-        String minusReputationAdded();
+        List<String> minusReputationAdded();
 
         @ConfComments({
                 "List of command that executes then player add a + reputation",
@@ -58,17 +50,11 @@ public interface CommandsConfiguration {
                 "say <senderName> give a + reputation to <recipientName>"
         })
         @ConfKey("plus-reputation-added")
-        String plusReputationAdded();
+        List<String> plusReputationAdded();
 
-        @ConfComments({
-                "List of command that executes then player check another",
-                "player`s reputation. You can use a <name> variable in commands"
-        })
-        @ConfDefault.DefaultStrings({
-                "playsound block.anvil.hit master <name>",
-                "tell <name> test command!"
-        })
-        @ConfKey("another-check-commands")
-        String anotherCheckCommands();
     }
+    @ConfKey("Commands")
+    @SubSection
+    @ConfComments({"There you can change messages for plugin."})
+    CommandsConfiguration.Commands commands();
 }

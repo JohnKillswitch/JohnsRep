@@ -1,11 +1,15 @@
 package johnsrep.johnsrep.commands;
 
+import johnsrep.johnsrep.configs.CommandsConfiguration;
 import johnsrep.johnsrep.configs.Configuration;
 import johnsrep.johnsrep.configs.MainConfiguration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,24 +27,30 @@ public class ReputationCommand implements CommandExecutor {
     private final MiniMessage miniMessage;
     private final ReputationCache reputationCache;
     private final Configuration<MainConfiguration> conf;
+    private final Configuration<CommandsConfiguration> commands;
+    ExecuteCommands executor;
 
     public ReputationCommand(
             MySQL mysql,
             Configuration<MessagesConfiguration> messages,
             MiniMessage miniMessage,
             ReputationCache reputationCache,
-            Configuration<MainConfiguration> conf) {
+            Configuration<MainConfiguration> conf,
+            ExecuteCommands executor,
+            Configuration<CommandsConfiguration> commands) {
 
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
         this.conf = conf;
+        this.executor = executor;
+        this.commands = commands;
 
 
 
-        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.miniMessage, reputationCache, conf);
-        checkReputation = new CheckReputation(this.mysql, this.messages, this.miniMessage, reputationCache);
+        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.miniMessage, reputationCache, conf, executor, commands);
+        checkReputation = new CheckReputation(this.mysql,this.messages,this.miniMessage,this.reputationCache, this.commands, this.executor);
     }
 
     @Override
@@ -55,7 +65,7 @@ public class ReputationCommand implements CommandExecutor {
                 sender.sendMessage(miniMessage.deserialize(messages.data().messages().commandNoPermission()));
                 return true;
             }
-            checkReputation.checkReputation(sender, ((Player) sender).getPlayer().getName());
+            checkReputation.checkReputation(sender, ((OfflinePlayer) sender).getPlayer().getName());
         }
         else if (args.length == 1) {
             if (!sender.hasPermission("rep.checkother")) {
