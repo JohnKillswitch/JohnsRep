@@ -87,6 +87,15 @@ public interface MessagesConfiguration {
         @ConfKey("need-more-played-time")
         String needMorePlayedTime();
 
+        @ConfDefault.DefaultString("<prefix> <red>Your cooldown on this command is not other. Remaining time: <time>s")
+        @ConfKey("command-on-cooldown")
+        String commandOnCooldown();
+
+        @ConfDefault.DefaultString("<prefix> <green>Config successfully reload")
+        @ConfKey("config-reload-message")
+        String configReload();
+
+
     }
     @ConfKey("Messages")
     @SubSection

@@ -1,6 +1,8 @@
 package johnsrep.johnsrep;
 
 import com.zaxxer.hikari.HikariDataSource;
+import johnsrep.johnsrep.commands.CheckReputation;
+import johnsrep.johnsrep.commands.ReloadConfigCommand;
 import johnsrep.johnsrep.commands.ReputationCommand;
 import johnsrep.johnsrep.configs.CommandsConfiguration;
 import johnsrep.johnsrep.databaseRelated.HikariDataSourceCreation;
@@ -10,6 +12,8 @@ import johnsrep.johnsrep.configs.MainConfiguration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ConfigsHelper;
+import johnsrep.johnsrep.utils.CooldownManager;
 import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
@@ -81,14 +85,25 @@ public final class JohnsRep extends JavaPlugin implements Listener {
 
         ReputationCache reputationCache = new ReputationCache(mysql);
         MiniMessage miniMessage = MiniMessage.builder().tags(resolver).build();
+        CooldownManager cooldownManager = new CooldownManager();
 
         ExecuteCommands executor = new ExecuteCommands(this, commands, miniMessage);
 
-        this.getCommand("rep").setExecutor(new ReputationCommand(mysql, messages, miniMessage, reputationCache, conf, executor, commands));
+        ConfigsHelper configsHelper = new ConfigsHelper(miniMessage);
+
+        ReloadConfigCommand reloadConfigCommand = new ReloadConfigCommand(messages, conf, miniMessage, commands);
+
+        CheckReputation checkReputation = new CheckReputation(mysql, messages, configsHelper, reputationCache, commands, executor);
+
+        this.getCommand("rep").setExecutor(new ReputationCommand(
+                mysql, messages, configsHelper, reloadConfigCommand,
+                reputationCache, conf, executor, commands,
+                checkReputation, cooldownManager));
 
         getServer().getPluginManager().registerEvents(new PlayerEnteringServer(reputationCache), this);
 
-        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache, commands, executor);
+
+        Placeholders placeholders = new Placeholders(mysql, messages, miniMessage, reputationCache, commands, executor, checkReputation);
         placeholders.register();
     }
 

@@ -29,21 +29,15 @@ public class Placeholders extends PlaceholderExpansion {
             MiniMessage miniMessage,
             ReputationCache reputationCache,
             Configuration<CommandsConfiguration> commands,
-            ExecuteCommands executor) {
+            ExecuteCommands executor,
+            CheckReputation checkReputation) {
         this.messages = messages;
         this.mysql = mysql;
         this.miniMessage = miniMessage;
         this.reputationCache = reputationCache;
         this.commands = commands;
         this.executor = executor;
-
-        checkReputation = new CheckReputation(
-                this.mysql,
-                this.messages,
-                this.miniMessage,
-                reputationCache,
-                commands,
-                executor);
+        this.checkReputation = checkReputation;
     }
 
     @Override

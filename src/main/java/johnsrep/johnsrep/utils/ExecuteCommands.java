@@ -11,6 +11,7 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ExecuteCommands {
 
@@ -26,7 +27,7 @@ public class ExecuteCommands {
         this.miniMessage = miniMessage;
     }
 
-    public void executeCommands(ArrayList<String> commands, Player playerFrom, OfflinePlayer playerTo) {
+    public void executeCommands(List<String> commands, Player playerFrom, OfflinePlayer playerTo) {
         ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
         for (String command : commands) {
             command = command

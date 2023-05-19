@@ -6,27 +6,32 @@ import space.arim.dazzleconf.annote.*;
 public interface MainConfiguration {
 
     interface Database {
-        @ConfComments({"MySQL or H2"})
+        @ConfComments({"SQLite or MySQL"})
         @ConfDefault.DefaultString("SQLite")
         @ConfKey("type")
         String dbType();
 
+        @ConfComments({"NOT NEED IN SQLite mode!"})
         @ConfDefault.DefaultString("3306")
         @ConfKey("Database-Port")
         String portDB();
 
+        @ConfComments({"NOT NEED IN SQLite mode!"})
         @ConfDefault.DefaultString("localhost")
         @ConfKey("Database-IP")
         String ipDB();
 
+        @ConfComments({"NOT NEED IN SQLite mode!"})
         @ConfDefault.DefaultString("YourDatabaseName")
         @ConfKey("Database-Name")
         String nameDB();
 
+        @ConfComments({"NOT NEED IN SQLite mode!"})
         @ConfDefault.DefaultString("Notch")
         @ConfKey("Database-Username")
         String usernameDB();
 
+        @ConfComments({"NOT NEED IN SQLite mode!"})
         @ConfDefault.DefaultString("qwerty")
         @ConfKey("Database-Password")
         String passwordDB();
@@ -41,6 +46,11 @@ public interface MainConfiguration {
         @ConfDefault.DefaultInteger(2)
         @ConfKey("needTimePlayed")
         int needTimePlayed();
+
+        @ConfComments({"You need to write time in seconds"})
+        @ConfDefault.DefaultInteger(15)
+        @ConfKey("cooldownToSetReputation")
+        int cooldownToSetReputation();
     }
     @ConfKey("OtherSettings")
     @SubSection

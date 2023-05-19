@@ -49,7 +49,7 @@ public class HikariDataSourceCreation {
             username = "sa";
             password = "";
 
-            config.setDriverClassName(org.sqlite.JDBC.class.getName());
+            config.setDriverClassName("org.sqlite.JDBC");
 
         } else {
             throw new UnsupportedOperationException("postrges/other databases are not supported yet.");

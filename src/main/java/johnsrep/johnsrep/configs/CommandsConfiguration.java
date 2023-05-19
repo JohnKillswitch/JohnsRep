@@ -31,7 +31,6 @@ public interface CommandsConfiguration {
                 "You can use several variables here:",
                 "<senderName> for command sender,",
                 "<recipientName> for command recipient,",
-                "<comment> for comment of added reputation"
         })
         @ConfDefault.DefaultStrings({
                 "say <senderName> give a - reputation to <recipientName>"
@@ -44,7 +43,6 @@ public interface CommandsConfiguration {
                 "You can use several variables here:",
                 "<senderName> for command sender,",
                 "<recipientName> for command recipient,",
-                "<comment> for comment of added reputation"
         })
         @ConfDefault.DefaultStrings({
                 "say <senderName> give a + reputation to <recipientName>"

@@ -6,8 +6,11 @@ import johnsrep.johnsrep.configs.MainConfiguration;
 import johnsrep.johnsrep.configs.MessagesConfiguration;
 import johnsrep.johnsrep.databaseRelated.MySQL;
 import johnsrep.johnsrep.databaseRelated.ReputationCache;
+import johnsrep.johnsrep.utils.ConfigsHelper;
+import johnsrep.johnsrep.utils.CooldownManager;
 import johnsrep.johnsrep.utils.ExecuteCommands;
 import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
@@ -17,6 +20,8 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.time.Duration;
+import java.util.UUID;
 
 public class ReputationCommand implements CommandExecutor {
 
@@ -24,66 +29,94 @@ public class ReputationCommand implements CommandExecutor {
     private Configuration<MessagesConfiguration> messages;
     private final AnotherPlayerSet anotherPlayerSet;
     private final CheckReputation checkReputation;
-    private final MiniMessage miniMessage;
+    private final ReloadConfigCommand reloadConfigCommand;
+    private final ConfigsHelper configsHelper;
     private final ReputationCache reputationCache;
     private final Configuration<MainConfiguration> conf;
     private final Configuration<CommandsConfiguration> commands;
+    private final CooldownManager cooldownManager;
     ExecuteCommands executor;
 
     public ReputationCommand(
             MySQL mysql,
             Configuration<MessagesConfiguration> messages,
-            MiniMessage miniMessage,
+            ConfigsHelper configsHelper,
+            ReloadConfigCommand reloadConfigCommand,
             ReputationCache reputationCache,
             Configuration<MainConfiguration> conf,
             ExecuteCommands executor,
-            Configuration<CommandsConfiguration> commands) {
+            Configuration<CommandsConfiguration> commands,
+            CheckReputation checkReputation,
+            CooldownManager cooldownManager) {
 
         this.messages = messages;
+        this.reloadConfigCommand = reloadConfigCommand;
         this.mysql = mysql;
-        this.miniMessage = miniMessage;
+        this.configsHelper = configsHelper;
         this.reputationCache = reputationCache;
         this.conf = conf;
         this.executor = executor;
         this.commands = commands;
+        this.checkReputation = checkReputation;
+        this.cooldownManager = cooldownManager;
 
 
 
-        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.miniMessage, reputationCache, conf, executor, commands);
-        checkReputation = new CheckReputation(this.mysql,this.messages,this.miniMessage,this.reputationCache, this.commands, this.executor);
+        anotherPlayerSet = new AnotherPlayerSet(this.mysql, this.messages, this.configsHelper, this.reputationCache, this.conf, this.executor, this.commands);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
 
         if (!(sender instanceof Player)) {
-            sender.sendMessage("Команда доступно только игроку");
+            sender.sendMessage("This command is for players only");
             return true;
         }
-        if (args.length == 0) {
-            if (!sender.hasPermission("rep.checkself")) {
-                sender.sendMessage(miniMessage.deserialize(messages.data().messages().commandNoPermission()));
-                return true;
-            }
-            checkReputation.checkReputation(sender, ((OfflinePlayer) sender).getPlayer().getName());
-        }
-        else if (args.length == 1) {
-            if (!sender.hasPermission("rep.checkother")) {
-                sender.sendMessage(miniMessage.deserialize(messages.data().messages().commandNoPermission()));
-                return true;
-            }
-            checkReputation.checkReputation(sender, args[0]);
-        }
-        else{
-            if (!sender.hasPermission("rep.set")) {
-                sender.sendMessage(miniMessage.deserialize(messages.data().messages().commandNoPermission()));
-                return true;
-            }
-            try {
-                anotherPlayerSet.setReputation(sender, command,args);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+
+        switch (args.length) {
+            case 0:
+                if (!sender.hasPermission("rep.checkself")) {
+                    this.configsHelper.sendMessage(sender, messages.data().messages().commandNoPermission());
+                    return true;
+                }
+                checkReputation.checkReputation(sender, ((OfflinePlayer) sender).getPlayer().getName());
+                break;
+            case 1:
+                if (args[0].equalsIgnoreCase("reload")) {
+                    reloadConfigCommand.reloadConfig();
+                    this.configsHelper.sendMessage(sender, messages.data().messages().configReload());
+                }
+                else if (!sender.hasPermission("rep.checkother")) {
+                    this.configsHelper.sendMessage(sender, messages.data().messages().commandNoPermission());
+                    return true;
+                }
+                else checkReputation.checkReputation(sender, args[0]);
+                break;
+            default:
+                if (!sender.hasPermission("rep.set")) {
+                    this.configsHelper.sendMessage(sender, messages.data().messages().commandNoPermission());
+                    return true;
+                }
+                try {
+                    UUID playerId = ((Player) sender).getUniqueId();
+                    Duration timeLeft = cooldownManager.getRemainingCooldown(playerId);
+
+                    if (timeLeft.isZero() || timeLeft.isNegative()) {
+                        cooldownManager.setCooldown(
+                                playerId,
+                                Duration.ofSeconds(conf.data().otherSettings().cooldownToSetReputation()));
+                        anotherPlayerSet.setReputation(sender, command,args);
+                    }
+                    else this.configsHelper.sendMessageWithPlaceholder(
+                            sender,
+                            messages.data().messages().commandOnCooldown(),
+                            Placeholder.parsed("time",
+                                    String.valueOf(cooldownManager.getRemainingCooldown(playerId).getSeconds())));
+
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                break;
         }
 
 
